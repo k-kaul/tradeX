@@ -5,21 +5,12 @@ export interface Balance{
 
 export interface Order {
     orderId: string;
+    market: string;
     price: number;
     quantity: number;
     userId: string;
     filled: number;
     side: "buy" | "sell";
-}
-
-export interface Fill {
-  fillId: string;
-  symbol: string;
-  price: number;
-  qty: number;
-  buyOrderId: string;
-  sellOrderId: string;
-  createdAt: number;
 }
 
 export interface OrderBook {
@@ -29,4 +20,15 @@ export interface OrderBook {
     baseAsset: string;
     quoteAsset: string;
     lastTradeId: string;
+    market:string;
+}
+
+export interface Fill {
+  fillId: string;
+  symbol: string;
+  price: number;
+  qty: number;
+  buyOrderId: number;
+  sellOrderId: number;
+  createdAt: number;
 }
