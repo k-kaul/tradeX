@@ -7,6 +7,7 @@ export function placeOrder(order:Order){
 
     if(side === "buy"){
         const { executedQuantity, fills }= matchAsk(order);
+        order.filled = executedQuantity;
 
         if(executedQuantity === quantity){
             return {
@@ -16,10 +17,15 @@ export function placeOrder(order:Order){
         }
 
         ORDERBOOK.get(market)?.bids.push(order);
+
+        return{
+            executedQuantity,
+            fills
+        }
         
     } else {
         const { executedQuantity, fills } = matchBid(order);
-
+        order.filled = executedQuantity;
         if(executedQuantity === quantity){
             return {
                 executedQuantity,
@@ -179,7 +185,7 @@ export function getDepth(market:string){
             asksObj[order.price] = 0;
         }
 
-        asksObj[order.price] += order.quantity;
+        asksObj[order.price] += order.quantity - order.filled;
     }
 
     for (let i=0; i<marketBids.length; i++){
@@ -188,7 +194,7 @@ export function getDepth(market:string){
             bidsObj[order.price] = 0;
         }
 
-        bidsObj[order.price] += order.quantity;
+        bidsObj[order.price] += order.quantity - order.filled;
     }
 
     for(const price in asksObj){
