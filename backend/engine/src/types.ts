@@ -28,7 +28,8 @@ export interface Fill {
   symbol: string;
   price: number;
   qty: number;
-  buyOrderId: number;
-  sellOrderId: number;
+  buyOrderId?: number;
+  sellOrderId?: number;
   createdAt: number;
+  otherUserId:string;
 }
