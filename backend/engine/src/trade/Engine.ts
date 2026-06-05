@@ -42,6 +42,6 @@ function checkAndLockFunds(quoteAsset:string, baseAsset: string, userId:string, 
     }
 }
 
-function updateBalances(){
+function updateBalances(order:Order){
 
 }
