@@ -67,6 +67,7 @@ export function matchBid(order: Order){
                 buyOrderId: Number(order.orderId),
                 sellOrderId: Number(ask.orderId),
                 createdAt: new Date().getTime(),
+                otherUserId: ask.userId
             })       
         }
         
@@ -106,6 +107,7 @@ function matchAsk(order:Order){
                 buyOrderId: Number(bid.orderId),
                 sellOrderId: Number(order.orderId),
                 createdAt: new Date().getTime(),
+                otherUserId: bid.userId
             })       
         }
         
