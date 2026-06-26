@@ -4,6 +4,9 @@ import { Fill, Order, OrderBook } from "../types";
 export function placeOrder(order:Order){
 
     const { market, quantity, side } = order;
+    const orderbook = ORDERBOOK.get(market);
+
+    if(!orderbook) throw new Error("Orderbook not found");
 
     if(side === "buy"){
         const { executedQuantity, fills }= matchAsk(order);
@@ -16,7 +19,7 @@ export function placeOrder(order:Order){
             }
         }
 
-        ORDERBOOK.get(market)?.bids.push(order);
+        orderbook.bids.push(order);
 
         return{
             executedQuantity,
@@ -33,7 +36,7 @@ export function placeOrder(order:Order){
             }
         }
 
-        ORDERBOOK.get(market)?.asks.push(order);
+        orderbook.asks.push(order);
 
         return{
             executedQuantity,
@@ -45,8 +48,9 @@ export function placeOrder(order:Order){
 export function matchBid(order: Order){
     const fills: Fill[] = [];
     let executedQuantity = 0;
-
-    const asks = ORDERBOOK.get(order.market)?.asks || [];
+    const orderbook = ORDERBOOK.get(order.market);
+    if(!orderbook) throw new Error("Orderbook not found");
+    const asks = orderbook.asks || [];
 
     for (const ask of asks){
         if(executedQuantity === order.quantity){
@@ -73,7 +77,7 @@ export function matchBid(order: Order){
         
     }
 
-    ORDERBOOK.get(order.market)!.asks = asks.filter(ask => ask.quantity > ask.filled)
+    orderbook.asks = asks.filter(ask => ask.quantity > ask.filled)
 
     return {
         fills,
@@ -85,8 +89,10 @@ export function matchBid(order: Order){
 function matchAsk(order:Order){
     const fills: Fill[] = [];
     let executedQuantity = 0;
+    const orderbook = ORDERBOOK.get(order.market);
+    if(!orderbook) throw new Error("Orderbook not found");
 
-    const bids = ORDERBOOK.get(order.market)?.bids || [];
+    const bids = orderbook.bids || [];
 
     for (const bid of bids){
         if(executedQuantity === order.quantity){
@@ -113,7 +119,7 @@ function matchAsk(order:Order){
         
     }
 
-    ORDERBOOK.get(order.market)!.bids = bids.filter(bid => bid.quantity > bid.filled)
+    orderbook.bids = bids.filter(bid => bid.quantity > bid.filled)
 
     return {
         fills,
