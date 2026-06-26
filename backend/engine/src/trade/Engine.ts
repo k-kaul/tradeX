@@ -1,4 +1,4 @@
-import { BALANCES, ORDERBOOK } from "../store/store";
+import { BALANCES, FILLS, ORDERBOOK, ORDERS } from "../store/store";
 import { Fill, Order } from "../types";
 import { matchBid, placeOrder } from "./orderbook";
 
@@ -8,13 +8,14 @@ export function createOrder(market:string, price:number, quantity:number, userId
     const quoteAsset = market.split("_")[1];
 
     const orderbook = ORDERBOOK.get(market);
-    const user = BALANCES.get(userId)!.userId;
+    const userBalance = BALANCES.get(userId);
     
     if(!BALANCES.get(userId)) throw new Error("user does not exist");
 
     if(!orderbook) throw new Error("Market does not exist");
+    if(!userBalance) throw new Error("User does not exist");
 
-    if(!(user.available > price * quantity)) throw new Error("Insufficient Balance");
+    if(!(userBalance[userId].available > price * quantity)) throw new Error("Insufficient Balance");
     
     checkAndLockFunds(quoteAsset, baseAsset, userId, quantity, price, side);    
 
@@ -29,6 +30,9 @@ export function createOrder(market:string, price:number, quantity:number, userId
     }
 
     const {fills, executedQuantity} = placeOrder(order);
+
+    ORDERS.set(order.orderId, order);
+    FILLS.push(...fills);
 
     updateBalances(userId, fills, baseAsset, quoteAsset, side);
     // Todo: free locked funds
