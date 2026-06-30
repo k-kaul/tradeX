@@ -2,6 +2,8 @@ import { BALANCES, FILLS, ORDERBOOK, ORDERS } from "../store/store";
 import { Fill, Order } from "../types";
 import { matchBid, placeOrder } from "./orderbook";
 
+export const BASE_CURRENCY = "INR";
+
 export function createOrder(market:string, price:number, quantity:number, userId:string, side:"buy"| "sell"){
     
     const baseAsset = market.split("_")[0];
@@ -109,3 +111,17 @@ function updateBalances(userId:string, fills:Fill[], baseAsset:string, quoteAsse
 }
 
 // TODO: free locked funds function
+
+function onRamp(userId:string, amount:number){
+    const userBalance = BALANCES.get(userId);
+    if(!userBalance){
+        BALANCES.set(userId,{
+            [BASE_CURRENCY]: {
+                available: amount,
+                locked: 0
+            }
+        })
+    } else{
+        userBalance[BASE_CURRENCY].available += amount;
+    }
+}
