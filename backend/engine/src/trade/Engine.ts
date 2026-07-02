@@ -1,6 +1,6 @@
 import { BALANCES, FILLS, ORDERBOOK, ORDERS } from "../store/store";
 import { Fill, Order } from "../types";
-import { cancelAsk, cancelBid, matchBid, placeOrder } from "./orderbook";
+import { cancelAsk, cancelBid, placeOrder } from "./orderbook";
 
 export const BASE_CURRENCY = "INR";
 
@@ -12,12 +12,10 @@ export function createOrder(market:string, price:number, quantity:number, userId
     const orderbook = ORDERBOOK.get(market);
     const userBalance = BALANCES.get(userId);
     
-    if(!BALANCES.get(userId)) throw new Error("user does not exist");
+    if(!userBalance) throw new Error("user does not exist");
 
     if(!orderbook) throw new Error("Market does not exist");
     if(!userBalance) throw new Error("User does not exist");
-
-    if(!(userBalance[userId].available > price * quantity)) throw new Error("Insufficient Balance");
     
     checkAndLockFunds(quoteAsset, baseAsset, userId, quantity, price, side);    
 
@@ -78,7 +76,7 @@ function checkAndLockFunds(quoteAsset:string, baseAsset: string, userId:string, 
 function updateBalances(userId:string, fills:Fill[], baseAsset:string, quoteAsset:string, side:"buy"| "sell"){
     //baseAsset = TATA, quoteAsset = INR
     let fillCounter:number = 0;
-    let otherUserId = "";
+
     if(side === "buy"){
         fills.forEach(fill => {
             // update baseAsset balance
@@ -102,7 +100,7 @@ function updateBalances(userId:string, fills:Fill[], baseAsset:string, quoteAsse
         //update quoteAsset balance
 
         BALANCES.get(userId)![quoteAsset].available += fill.price * fill.qty;
-        BALANCES.get(fill.otherUserId)![baseAsset].locked -= fill.price * fill.qty;
+        BALANCES.get(fill.otherUserId)![quoteAsset].locked -= fill.price * fill.qty;
         
         fillCounter += 1
         
