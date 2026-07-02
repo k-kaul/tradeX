@@ -1,6 +1,6 @@
 import { BALANCES, FILLS, ORDERBOOK, ORDERS } from "../store/store";
 import { Fill, Order } from "../types";
-import { matchBid, placeOrder } from "./orderbook";
+import { cancelAsk, cancelBid, matchBid, placeOrder } from "./orderbook";
 
 export const BASE_CURRENCY = "INR";
 
@@ -123,5 +123,34 @@ function onRamp(userId:string, amount:number){
         })
     } else{
         userBalance[BASE_CURRENCY].available += amount;
+    }
+}
+
+function cancelOrder(orderId:string, market:string){   
+    const currentOrderbook = ORDERBOOK.get(market);
+    if(!currentOrderbook) throw new Error("Orderbook does not exist");
+    
+    const order = currentOrderbook.asks.find(o => o.orderId === orderId) || currentOrderbook.bids.find(o => o.orderId === orderId);
+
+    if(!order) throw new Error("Order does not exist")
+    
+    if(order.side === "buy"){
+        cancelBid(order);
+        const remainigAmount = (order.quantity - order.filled) * order.price;
+
+        BALANCES.get(order.userId)![BASE_CURRENCY].available += remainigAmount;
+        BALANCES.get(order.userId)![BASE_CURRENCY].locked -= remainigAmount;
+
+        //Todo: add depth update
+
+    } else {
+        const quoteAsset = market.split("_")[1];
+        cancelAsk(order);
+        const remainigQuantity = (order.quantity - order.filled);
+        
+        BALANCES.get(order.userId)![quoteAsset].available += remainigQuantity;        
+        BALANCES.get(order.userId)![quoteAsset].locked -= remainigQuantity;
+
+        //Todo: depth updates
     }
 }
