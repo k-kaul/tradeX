@@ -152,3 +152,36 @@ function cancelOrder(orderId:string, market:string){
         //Todo: depth updates
     }
 }
+
+export function seed(){
+    BALANCES.set("1", {
+        [BASE_CURRENCY] : {
+            available: 1000,
+            locked: 0
+        }, "TATA" : {
+            available: 10,
+            locked: 0
+        }
+    });
+
+    BALANCES.set("2", {
+        [BASE_CURRENCY] : {
+            available: 2000,
+            locked: 0
+        }, "TATA" : {
+            available: 100,
+            locked: 0
+        }
+    });
+
+    BALANCES.set("3", {
+        [BASE_CURRENCY] : {
+            available: 1000,
+            locked: 0
+        }, "TATA" : {
+            available: 100,
+            locked: 0
+        }
+    })
+
+}
