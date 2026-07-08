@@ -50,34 +50,34 @@ export function matchBid(order: Order){
     let executedQuantity = 0;
     const orderbook = ORDERBOOK.get(order.market);
     if(!orderbook) throw new Error("Orderbook not found");
-    const asks = orderbook.asks || [];
 
-    for (const ask of asks){
+    const bids = orderbook.bids || [];
+
+    for (const bid of bids){            
         if(executedQuantity === order.quantity){
             break;
         }
 
-        if(ask.price <= order.price && order.userId !== ask.userId){
-            const remainigAsks = ask.quantity - ask.filled;
-            const filledQuantity = Math.min((order.quantity - executedQuantity), remainigAsks); // filling order
+        if(bid.price <= order.price && order.userId != bid.userId){
+            const remainigbids = bid.quantity - bid.filled;
+            const filledQuantity = Math.min((order.quantity - executedQuantity), remainigbids); // filling order
             executedQuantity += filledQuantity; //updating no of executed quantities in each iteration
-            ask.filled += filledQuantity; //updating filled quants in asks array
+            bid.filled += filledQuantity; //updating filled quants in bids array
             //updating fills
             fills.push({
                 fillId: String(Math.random()),
                 symbol: order.market,
-                price: ask.price,
+                price: bid.price,
                 qty: filledQuantity,
                 buyOrderId: Number(order.orderId),
-                sellOrderId: Number(ask.orderId),
+                sellOrderId: Number(bid.orderId),
                 createdAt: new Date().getTime(),
-                otherUserId: ask.userId
-            })       
+                otherUserId: bid.userId
+            })
         }
-        
-    }
+    } 
 
-    orderbook.asks = asks.filter(ask => ask.quantity > ask.filled)
+    orderbook.bids = bids.filter(bid => bid.quantity > bid.filled);
 
     return {
         fills,
@@ -92,34 +92,34 @@ function matchAsk(order:Order){
     const orderbook = ORDERBOOK.get(order.market);
     if(!orderbook) throw new Error("Orderbook not found");
 
-    const bids = orderbook.bids || [];
+    const asks = orderbook.asks || [];
 
-    for (const bid of bids){
+    for (const ask of asks){
         if(executedQuantity === order.quantity){
             break;
         }
 
-        if(bid.price >= order.price && order.userId !== bid.userId){
-            const remainigbidQty = bid.quantity - bid.filled;
-            const filledQuantity = Math.min((order.quantity - executedQuantity), remainigbidQty); // filling order
+        if(ask.price >= order.price && order.userId != ask.userId){
+            const remainigaskQty = ask.quantity - ask.filled;
+            const filledQuantity = Math.min((order.quantity - executedQuantity), remainigaskQty); // filling order
             executedQuantity += filledQuantity; //updating no of executed quantities in each iteration
-            bid.filled += filledQuantity; //updating filled quants in bids array
+            ask.filled += filledQuantity; //updating filled quants in asks array
             //updating fills
             fills.push({
                 fillId: String(Math.random()),
                 symbol: order.market,
-                price: bid.price,
+                price: ask.price,
                 qty: filledQuantity,
-                buyOrderId: Number(bid.orderId),
+                buyOrderId: Number(ask.orderId),
                 sellOrderId: Number(order.orderId),
                 createdAt: new Date().getTime(),
-                otherUserId: bid.userId
+                otherUserId: ask.userId
             })       
         }
         
     }
 
-    orderbook.bids = bids.filter(bid => bid.quantity > bid.filled)
+    orderbook.asks = asks.filter(ask => ask.quantity > ask.filled)
 
     return {
         fills,
@@ -217,5 +217,4 @@ export function getDepth(market:string){
         bids,
         asks
     }
-
 }
