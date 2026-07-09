@@ -58,7 +58,7 @@ export function matchBid(order: Order){
             break;
         }
 
-        if(bid.price <= order.price && order.userId != bid.userId){
+        if(bid.price >= order.price && order.userId != bid.userId){
             const remainigbids = bid.quantity - bid.filled;
             const filledQuantity = Math.min((order.quantity - executedQuantity), remainigbids); // filling order
             executedQuantity += filledQuantity; //updating no of executed quantities in each iteration
@@ -99,7 +99,7 @@ function matchAsk(order:Order){
             break;
         }
 
-        if(ask.price >= order.price && order.userId != ask.userId){
+        if(ask.price <= order.price && order.userId != ask.userId){
             const remainigaskQty = ask.quantity - ask.filled;
             const filledQuantity = Math.min((order.quantity - executedQuantity), remainigaskQty); // filling order
             executedQuantity += filledQuantity; //updating no of executed quantities in each iteration
