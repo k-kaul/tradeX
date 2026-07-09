@@ -47,16 +47,132 @@ function setDummyOrders(order:Order){
         orderbook?.asks.push(order);
     }
 };
-createOrder("TATA_INR",100,1,"1","sell");
-createOrder("TATA_INR",100,1,"1","sell");
-createOrder("TATA_INR",100,1,"1","sell");
-createOrder("TATA_INR",100,1,"1","sell");
-createOrder("TATA_INR",100,1,"1","sell");
-createOrder("TATA_INR",100,1,"2","buy");
-createOrder("TATA_INR",100,1,"2","buy");
-createOrder("TATA_INR",100,1,"2","buy");
-createOrder("TATA_INR",100,1,"2","buy");
-createOrder("TATA_INR",100,1,"2","buy");
+// ==========================================
+// TEST 1 : Exact Match
+// ==========================================
 
-console.log(ORDERBOOK)
-console.log(BALANCES)
+createOrder("TATA_INR", 100, 1, "1", "sell");
+createOrder("TATA_INR", 100, 1, "2", "buy");
+
+
+// ==========================================
+// TEST 2 : Buy Price Greater Than Ask
+// ==========================================
+
+createOrder("TATA_INR", 100, 1, "1", "sell");
+createOrder("TATA_INR", 110, 1, "2", "buy");
+
+
+// ==========================================
+// TEST 3 : No Match
+// ==========================================
+
+createOrder("TATA_INR", 120, 1, "1", "sell");
+createOrder("TATA_INR", 100, 1, "2", "buy");
+
+
+// ==========================================
+// TEST 4 : Partial Fill
+// ==========================================
+
+createOrder("TATA_INR", 100, 5, "1", "sell");
+createOrder("TATA_INR", 100, 2, "2", "buy");
+
+
+// ==========================================
+// TEST 5 : One Buyer Matches Multiple Sellers
+// ==========================================
+
+createOrder("TATA_INR", 100, 1, "1", "sell");
+createOrder("TATA_INR", 100, 1, "3", "sell");
+
+createOrder("TATA_INR", 200, 2, "2", "buy");
+
+
+// ==========================================
+// TEST 6 : One Large Buyer
+// ==========================================
+
+createOrder("TATA_INR", 100, 1, "1", "sell");
+createOrder("TATA_INR", 100, 2, "3", "sell");
+
+createOrder("TATA_INR", 100, 3, "2", "buy");
+
+
+// ==========================================
+// TEST 7 : Buyer Larger Than Available Liquidity
+// ==========================================
+
+createOrder("TATA_INR", 100, 2, "1", "sell");
+
+createOrder("TATA_INR", 100, 5, "2", "buy");
+
+
+// ==========================================
+// TEST 8 : Different Prices
+// ==========================================
+
+createOrder("TATA_INR", 95, 1, "1", "sell");
+createOrder("TATA_INR", 100, 1, "3", "sell");
+createOrder("TATA_INR", 105, 1, "1", "sell");
+
+createOrder("TATA_INR", 100, 3, "2", "buy");
+
+
+// ==========================================
+// TEST 9 : FIFO
+// ==========================================
+
+createOrder("TATA_INR", 100, 1, "1", "sell");
+createOrder("TATA_INR", 100, 1, "3", "sell");
+
+createOrder("TATA_INR", 100, 1, "2", "buy");
+
+
+// ==========================================
+// TEST 10 : Self Trade Prevention
+// ==========================================
+
+createOrder("TATA_INR", 100, 1, "1", "sell");
+createOrder("TATA_INR", 100, 1, "1", "buy");
+
+
+// ==========================================
+// TEST 11 : Multiple Markets
+// ==========================================
+
+createOrder("TATA_INR", 100, 1, "1", "sell");
+createOrder("RELIANCE_INR", 2000, 1, "1", "sell");
+
+createOrder("TATA_INR", 100, 1, "2", "buy");
+
+
+// ==========================================
+// TEST 12 : Insufficient Seller Balance
+// ==========================================
+
+createOrder("TATA_INR", 100, 1000, "1", "sell");
+
+
+// ==========================================
+// TEST 13 : Insufficient Buyer Balance
+// ==========================================
+
+createOrder("TATA_INR", 100000, 100, "2", "buy");
+
+
+// ==========================================
+// TEST 14 : Unknown Market
+// ==========================================
+
+createOrder("APPLE_INR", 100, 1, "1", "buy");
+
+
+// ==========================================
+// TEST 15 : Unknown User
+// ==========================================
+
+createOrder("TATA_INR", 100, 1, "999", "buy");
+
+console.log("current orderbook looks like this: ",ORDERBOOK)
+console.log("current Balances looks like this: ",BALANCES)
