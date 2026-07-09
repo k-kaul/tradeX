@@ -20,6 +20,7 @@ export function placeOrder(order:Order){
         }
 
         orderbook.bids.push(order);
+        orderbook.bids.sort((a,b) => b.price - a.price);
 
         return{
             executedQuantity,
@@ -37,6 +38,7 @@ export function placeOrder(order:Order){
         }
 
         orderbook.asks.push(order);
+        orderbook.asks.sort((a,b) => a.price - b.price);
 
         return{
             executedQuantity,
@@ -59,23 +61,30 @@ export function matchBid(order: Order){
         }
 
         if(bid.price >= order.price && order.userId != bid.userId){
-            const remainigbids = bid.quantity - bid.filled;
-            const filledQuantity = Math.min((order.quantity - executedQuantity), remainigbids); // filling order
+            const remainigBidQty = bid.quantity - bid.filled;
+            const filledQuantity = Math.min((order.quantity - executedQuantity), remainigBidQty); // filling order
             executedQuantity += filledQuantity; //updating no of executed quantities in each iteration
             bid.filled += filledQuantity; //updating filled quants in bids array
             //updating fills
-            fills.push({
-                fillId: String(Math.random()),
+            const fill:Fill = {
+                fillId: `fill-${crypto.randomUUID()}`,
                 symbol: order.market,
                 price: bid.price,
                 qty: filledQuantity,
                 buyOrderId: bid.orderId,
                 sellOrderId: order.orderId,
-                createdAt: new Date().getTime(),
+                createdAt: Date.now(),
                 otherUserId: bid.userId
-            })
+            }
+            fills.push(fill)
         }
-    } 
+    }
+
+    if(fills.length > 0){
+        const lastFill = fills[fills.length - 1];
+        orderbook.lastTradeId = lastFill.fillId;
+        orderbook.currentPrice = lastFill.price;
+    }
 
     orderbook.bids = bids.filter(bid => bid.quantity > bid.filled);
 
@@ -100,23 +109,29 @@ function matchAsk(order:Order){
         }
 
         if(ask.price <= order.price && order.userId != ask.userId){
-            const remainigaskQty = ask.quantity - ask.filled;
-            const filledQuantity = Math.min((order.quantity - executedQuantity), remainigaskQty); // filling order
+            const remainigAskQty = ask.quantity - ask.filled;
+            const filledQuantity = Math.min((order.quantity - executedQuantity), remainigAskQty); // filling order
             executedQuantity += filledQuantity; //updating no of executed quantities in each iteration
             ask.filled += filledQuantity; //updating filled quants in asks array
             //updating fills
-            fills.push({
-                fillId: String(Math.random()),
+            const fill:Fill = {
+                fillId: `fill-${crypto.randomUUID()}`,
                 symbol: order.market,
                 price: ask.price,
                 qty: filledQuantity,
                 buyOrderId: order.orderId,
                 sellOrderId: ask.orderId,
-                createdAt: new Date().getTime(),
+                createdAt: Date.now(),
                 otherUserId: ask.userId
-            })       
-        }
-        
+            };
+            fills.push(fill);
+        }        
+    }
+
+    if(fills.length > 0){
+        const lastFill = fills[fills.length - 1];
+        orderbook.lastTradeId = lastFill.fillId;
+        orderbook.currentPrice = lastFill.price;
     }
 
     orderbook.asks = asks.filter(ask => ask.quantity > ask.filled)
