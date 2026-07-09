@@ -1,7 +1,47 @@
 import { BALANCES, ORDERBOOK } from "./store/store";
-import { createOrder, seed } from "./trade/Engine";
+import { BASE_CURRENCY, createOrder } from "./trade/Engine";
 import { Order } from "./types";
 
+export function seed(){
+    BALANCES.set("1", {
+        [BASE_CURRENCY] : {
+            available: 1000,
+            locked: 0
+        }, "TATA" : {
+            available: 10,
+            locked: 0
+        }, "RELIANCE": {
+            available:1000,
+            locked: 0
+        }
+    });
+
+    BALANCES.set("2", {
+        [BASE_CURRENCY] : {
+            available: 2000,
+            locked: 0
+        }, "TATA" : {
+            available: 100,
+            locked: 0
+        }, "RELIANCE": {
+            available:1000,
+            locked: 0
+        }
+    });
+
+    BALANCES.set("3", {
+        [BASE_CURRENCY] : {
+            available: 1000,
+            locked: 0
+        }, "TATA" : {
+            available: 100,
+            locked: 0
+        }, "RELIANCE": {
+            available:1000,
+            locked: 0
+        }
+    })
+}
 seed();
 
 function initalizeOrderbooks(){
