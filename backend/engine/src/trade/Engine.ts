@@ -54,7 +54,7 @@ function checkAndLockFunds(quoteAsset:string, baseAsset: string, userId:string, 
         const userQuoteAssetBalance = currentUserBalance[quoteAsset];
 
         if(userQuoteAssetBalance.available < price * quantity){
-            throw new Error("insufficient balance");
+            throw new Error(`insufficient balance, userId: ${userId}`);
         }
 
         userQuoteAssetBalance.available = userQuoteAssetBalance.available - (price * quantity);
@@ -66,7 +66,7 @@ function checkAndLockFunds(quoteAsset:string, baseAsset: string, userId:string, 
         
         const userBaseAssetBalance = currentUserBalance[baseAsset];
 
-        if(userBaseAssetBalance.available < quantity) throw new Error("Insufficient balance");
+        if(userBaseAssetBalance.available < quantity) throw new Error(`insufficient balance, userId: ${userId}`);
 
         userBaseAssetBalance.available = userBaseAssetBalance.available -  quantity;
 
@@ -151,37 +151,4 @@ function cancelOrder(orderId:string, market:string){
 
         //Todo: depth updates
     }
-}
-
-export function seed(){
-    BALANCES.set("1", {
-        [BASE_CURRENCY] : {
-            available: 1000,
-            locked: 0
-        }, "TATA" : {
-            available: 10,
-            locked: 0
-        }
-    });
-
-    BALANCES.set("2", {
-        [BASE_CURRENCY] : {
-            available: 2000,
-            locked: 0
-        }, "TATA" : {
-            available: 100,
-            locked: 0
-        }
-    });
-
-    BALANCES.set("3", {
-        [BASE_CURRENCY] : {
-            available: 1000,
-            locked: 0
-        }, "TATA" : {
-            available: 100,
-            locked: 0
-        }
-    })
-
 }
