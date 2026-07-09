@@ -1,8 +1,55 @@
 import { BALANCES, FILLS, ORDERBOOK, ORDERS } from "../store/store";
-import { Fill, Order } from "../types";
-import { cancelAsk, cancelBid, placeOrder } from "./orderbook";
+import { Fill, MessagesFromApi, Order } from "../types";
+import { cancelAsk, cancelBid, getDepth, getOpenOrders, placeOrder } from "./orderbook";
 
 export const BASE_CURRENCY = "INR";
+
+export function process(message: MessagesFromApi){
+    switch (message.type) {
+        case "CREATE_ORDER":
+            try {
+                const { fills, executedQuantity, orderId } = createOrder(message.data.market, message.data.price, message.data.quantity, message.data.userId,message.data.side);
+
+                return {
+                    fills, executedQuantity, orderId
+                }
+            } catch (error) {
+                throw new Error(`Order Could not be created: ${(error as Error).message}`);
+            }
+        case "CANCEL_ORDER":
+            try {
+                cancelOrder(message.data.orderId, message.data.market);
+            } catch (error) {
+                throw new Error(`Error Cancelling the order with orderId ${message.data.orderId}: ${(error as Error).message}`)
+            }
+            break;
+        case "ON_RAMP":
+            try {
+                onRamp(message.data.userId,message.data.amount);
+            } catch (error) {
+                throw new Error(`Error while Adding funds: ${(error as Error).message}`)
+            }
+            break;
+        case "GET_DEPTH":
+            try {
+                const { bids, asks } = getDepth(message.data.market);
+                return {
+                    bids,
+                    asks
+                }
+            } catch (error) {
+                throw new Error(`Error fetching depth: ${(error as Error).message}`)
+            }
+        case "GET_OPEN_ORDERS":
+            try {
+                const openOrders = getOpenOrders(message.data.userId);
+                return openOrders;
+                
+            } catch (error) {
+                throw new Error(`Error fetching open orders: ${(error as Error).message}`)
+            }
+    }
+}
 
 export function createOrder(market:string, price:number, quantity:number, userId:string, side:"buy"| "sell"){
     
@@ -12,8 +59,6 @@ export function createOrder(market:string, price:number, quantity:number, userId
     const orderbook = ORDERBOOK.get(market);
     const userBalance = BALANCES.get(userId);
     
-    if(!userBalance) throw new Error("user does not exist");
-
     if(!orderbook) throw new Error("Market does not exist");
     if(!userBalance) throw new Error("User does not exist");
     
