@@ -69,8 +69,8 @@ export function matchBid(order: Order){
                 symbol: order.market,
                 price: bid.price,
                 qty: filledQuantity,
-                buyOrderId: Number(order.orderId),
-                sellOrderId: Number(bid.orderId),
+                buyOrderId: bid.orderId,
+                sellOrderId: order.orderId,
                 createdAt: new Date().getTime(),
                 otherUserId: bid.userId
             })
@@ -110,8 +110,8 @@ function matchAsk(order:Order){
                 symbol: order.market,
                 price: ask.price,
                 qty: filledQuantity,
-                buyOrderId: Number(ask.orderId),
-                sellOrderId: Number(order.orderId),
+                buyOrderId: order.orderId,
+                sellOrderId: ask.orderId,
                 createdAt: new Date().getTime(),
                 otherUserId: ask.userId
             })       
